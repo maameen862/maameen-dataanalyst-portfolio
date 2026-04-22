@@ -51,7 +51,7 @@ const Index = () => {
         .map((s) => s.url),
     });
     document.head.appendChild(ld);
-  }, []);
+  }, [portfolio]);
 
   return (
     <main className="min-h-screen">
