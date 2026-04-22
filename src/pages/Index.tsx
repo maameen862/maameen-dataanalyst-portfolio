@@ -1,16 +1,69 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useEffect } from "react";
+import { Nav } from "@/components/portfolio/Nav";
+import { Hero } from "@/components/portfolio/Hero";
+import { About } from "@/components/portfolio/About";
+import { Skills } from "@/components/portfolio/Skills";
+import { Experience } from "@/components/portfolio/Experience";
+import { Projects } from "@/components/portfolio/Projects";
+import { Contact, Footer } from "@/components/portfolio/Contact";
+import { portfolio } from "@/lib/portfolio";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
+  useEffect(() => {
+    document.title = `${portfolio.hero.name} — ${portfolio.hero.role} Portfolio`;
+    const meta = document.querySelector('meta[name="description"]') ?? (() => {
+      const m = document.createElement("meta");
+      m.setAttribute("name", "description");
+      document.head.appendChild(m);
+      return m;
+    })();
+    meta.setAttribute(
+      "content",
+      `${portfolio.hero.name} — ${portfolio.hero.role} based in Hyderabad. SQL, Power BI, Tableau, Looker dashboards that drive decisions.`
+    );
+
+    // Canonical
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.rel = "canonical";
+      document.head.appendChild(canonical);
+    }
+    canonical.href = window.location.href;
+
+    // JSON-LD
+    const ldId = "portfolio-jsonld";
+    document.getElementById(ldId)?.remove();
+    const ld = document.createElement("script");
+    ld.type = "application/ld+json";
+    ld.id = ldId;
+    ld.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Person",
+      name: portfolio.hero.name,
+      jobTitle: portfolio.hero.role,
+      email: portfolio.contact.email,
+      telephone: portfolio.contact.phone,
+      address: { "@type": "PostalAddress", addressLocality: "Hyderabad", addressCountry: "IN" },
+      sameAs: portfolio.socials
+        .filter((s) => s.url.startsWith("http"))
+        .map((s) => s.url),
+    });
+    document.head.appendChild(ld);
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
-    </div>
+    <main className="min-h-screen">
+      <Nav />
+      <Hero />
+      <About />
+      <Skills />
+      <Experience />
+      <Projects />
+      <Contact />
+      <Footer />
+    </main>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
