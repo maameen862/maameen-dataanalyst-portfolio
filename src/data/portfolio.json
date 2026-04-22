@@ -1,0 +1,288 @@
+{
+  "hero": {
+    "name": "Mohammad Ameenuddin",
+    "role": "Data Analyst",
+    "tagline": "Turning raw data into decisions. I build dashboards and analytical systems that go beyond charts — measuring performance, surfacing risks, and unlocking growth.",
+    "location": "Hyderabad, Telangana — India",
+    "availability": "Open to Data Analyst / BI Developer roles"
+  },
+  "about": "I'm a Data Analyst passionate about transforming raw data into meaningful business insights. I specialize in building dashboards and analytical solutions that focus on decision-making, performance tracking, and identifying growth opportunities. Strong foundation in SQL, Power BI, and Excel — with experience analyzing end-to-end business processes and delivering insights, not just charts.",
+  "resumeFile": "/Mohammad_Ameenuddin_Resume.pdf",
+  "contact": {
+    "email": "maameen862@gmail.com",
+    "phone": "+91 95056 90218"
+  },
+  "socials": [
+    {
+      "id": "s1",
+      "label": "LinkedIn",
+      "url": "https://www.linkedin.com/in/mohammadameenuddin",
+      "icon": "linkedin"
+    },
+    {
+      "id": "s2",
+      "label": "GitHub",
+      "url": "https://github.com/maameen862",
+      "icon": "github"
+    },
+    {
+      "id": "s3",
+      "label": "Email",
+      "url": "mailto:maameen862@gmail.com",
+      "icon": "mail"
+    },
+    {
+      "id": "s4",
+      "label": "Phone",
+      "url": "tel:+919505690218",
+      "icon": "phone"
+    }
+  ],
+  "stats": [
+    {
+      "label": "Years in analytics",
+      "value": "2+"
+    },
+    {
+      "label": "Dashboards shipped",
+      "value": "10+"
+    },
+    {
+      "label": "Recovery gap surfaced",
+      "value": "53%"
+    },
+    {
+      "label": "Engagement lift (A/B)",
+      "value": "~17%"
+    }
+  ],
+  "skills": [
+    {
+      "id": "k1",
+      "name": "SQL",
+      "level": 91
+    },
+    {
+      "id": "k2",
+      "name": "Power BI / DAX",
+      "level": 90
+    },
+    {
+      "id": "k3",
+      "name": "Python (Pandas, NumPy)",
+      "level": 68
+    },
+    {
+      "id": "k4",
+      "name": "Excel (Pivot, Macros)",
+      "level": 94
+    },
+    {
+      "id": "k5",
+      "name": "Tableau",
+      "level": 95
+    },
+    {
+      "id": "k6",
+      "name": "Looker Studio",
+      "level": 82
+    },
+    {
+      "id": "k7",
+      "name": "Data Modeling",
+      "level": 80
+    },
+    {
+      "id": "k8",
+      "name": "Power Query",
+      "level": 85
+    }
+  ],
+  "experience": [
+    {
+      "id": "e1",
+      "role": "Data Analyst Intern",
+      "company": "Analytics Benchmark Trainings",
+      "period": "Jul 2025 — Jan 2026",
+      "location": "Hyderabad",
+      "bullets": [
+        "Analyzed banking datasets to identify trends and improve data-driven decision-making.",
+        "Cleaned and transformed large datasets using Python (Pandas, NumPy).",
+        "Wrote optimized SQL queries to extract and manipulate data efficiently.",
+        "Built interactive Power BI dashboards to visualize KPIs and operational metrics.",
+        "A/B testing analysis contributing to ~17% engagement improvement."
+      ]
+    },
+    {
+      "id": "e2",
+      "role": "Technical Support Professional",
+      "company": "Foundever",
+      "period": "Apr 2024 — Jul 2025",
+      "location": "Hyderabad",
+      "bullets": [
+        "Resolved complex technical issues for global users across digital platforms.",
+        "Improved CSAT through efficient troubleshooting and clear communication.",
+        "Analyzed recurring issues and contributed to process improvements."
+      ]
+    },
+    {
+      "id": "e3",
+      "role": "Email & Chat Associate",
+      "company": "IntouchCX",
+      "period": "Feb 2023 — Feb 2024",
+      "location": "Hyderabad",
+      "bullets": [
+        "Provided real-time customer support resolving order and platform issues.",
+        "Maintained high response-time and satisfaction metrics."
+      ]
+    },
+    {
+      "id": "e4",
+      "role": "Senior Escalation Associate — Axis Bank Process",
+      "company": "Conneqt Business Solutions",
+      "period": "Aug 2021 — Dec 2022",
+      "location": "Hyderabad",
+      "bullets": [
+        "Handled critical banking escalations ensuring compliance and accuracy.",
+        "Conducted root-cause analysis for recurring issues.",
+        "Managed high-impact cases under strict SLA requirements."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "id": "p1",
+      "title": "Loan Analysis Dashboard",
+      "subtitle": "Power BI · End-to-end loan lifecycle",
+      "period": "Oct 2025",
+      "description": "Built a Power BI dashboard analyzing the complete loan lifecycle — from application to recovery — across channels and products.",
+      "highlights": [
+        "86.75% sanction rate — strong approval pipeline",
+        "92% disbursement rate — high operational efficiency",
+        "Only 53% recovery rate — flagged as major risk area",
+        "Online channel leads at 36% of acquisitions"
+      ],
+      "tools": [
+        "Power BI",
+        "DAX",
+        "Data Modeling"
+      ],
+      "link": "https://github.com/maameen862/loan-analysis-dashboard",
+      "category": "Banking",
+      "featured": true
+    },
+    {
+      "id": "p2",
+      "title": "Sales Performance Dashboard",
+      "subtitle": "Looker Studio · DMart sales analytics",
+      "period": "Feb 2026",
+      "description": "Interactive Looker Studio report converting raw datasets into structured, decision-ready insights with dynamic filters and drill-downs.",
+      "highlights": [
+        "End-to-end KPI monitoring with auto refresh",
+        "Dynamic filters & drill-down exploration",
+        "Trend & variance analysis with comparative views",
+        "Executive-friendly visualization design"
+      ],
+      "tools": [
+        "Looker Studio",
+        "BigQuery",
+        "Google Sheets"
+      ],
+      "link": "",
+      "category": "Retail",
+      "featured": true
+    },
+    {
+      "id": "p3",
+      "title": "Supply Chain Analytics",
+      "subtitle": "Power BI · Inventory & vendor performance",
+      "period": "Jan 2026",
+      "description": "End-to-end Power BI dashboard tracking inventory turnover, vendor efficiency, and order fulfilment in a single live view.",
+      "highlights": [
+        "Dynamic KPIs via DAX (turnover, stock-out, fulfilment)",
+        "Power Query transformations for clean modeling",
+        "Drill-down vendor reports for fast triage",
+        "Eliminated manual spreadsheet reporting"
+      ],
+      "tools": [
+        "Power BI",
+        "Power Query",
+        "DAX"
+      ],
+      "link": "",
+      "category": "Operations",
+      "featured": true
+    },
+    {
+      "id": "p4",
+      "title": "Movie Analytics — RSVP Movies",
+      "subtitle": "SQL · Three-year global release study",
+      "period": "Sep 2025",
+      "description": "Advanced SQL analysis on three years of movie data to inform a production company's global release strategy.",
+      "highlights": [
+        "Optimized queries on multi-table joins",
+        "Audience segmentation insights",
+        "Recommendations on genre & release timing"
+      ],
+      "tools": [
+        "SQL",
+        "Tableau"
+      ],
+      "link": "",
+      "category": "Media",
+      "featured": false
+    },
+    {
+      "id": "p5",
+      "title": "IPL Visualization Dashboard",
+      "subtitle": "Tableau · 10 seasons of IPL cricket",
+      "period": "Aug 2025",
+      "description": "Interactive Tableau dashboard analyzing IPL match, player and team statistics from 2008-2017 using match and ball-by-ball data.",
+      "highlights": [
+        "Toss vs Match Outcome analysis",
+        "Orange & Purple Cap trends across seasons",
+        "Season-wise team performance breakdown"
+      ],
+      "tools": [
+        "Tableau"
+      ],
+      "link": "",
+      "category": "Sports",
+      "featured": false
+    },
+    {
+      "id": "p6",
+      "title": "Bank Marketing Analysis",
+      "subtitle": "Excel · Conditional formatting + Pivots",
+      "period": "Nov 2025",
+      "description": "Analyzed bank marketing data using advanced Excel — Pivot Tables, VLOOKUP, conditional formatting and macros to automate reporting.",
+      "highlights": [
+        "Macros automated repetitive reporting",
+        "Positive response % by segment",
+        "Customer trend report delivered to stakeholders"
+      ],
+      "tools": [
+        "Excel",
+        "VBA",
+        "Pivot Tables"
+      ],
+      "link": "",
+      "category": "Banking",
+      "featured": false
+    }
+  ],
+  "certifications": [
+    {
+      "id": "c1",
+      "name": "Microsoft Certified: Data Analyst Associate -  (Analytics Benchmark)"
+    },
+    {
+      "id": "c2",
+      "name": "Deloitte Australia — Data Analytics Job Simulation"
+    },
+    {
+      "id": "c3",
+      "name": "Tata — GenAI Powered Data Analytics Job Simulation"
+    }
+  ]
+}
