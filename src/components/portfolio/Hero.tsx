@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
-import { portfolio } from "@/lib/portfolio";
+import { usePortfolio } from "@/lib/portfolioStore";
 import { ArrowDown, MapPin, Sparkles } from "lucide-react";
 
 export const Hero = () => {
-  const { hero, stats } = portfolio;
+  const { hero, stats } = usePortfolio();
 
   return (
     <section id="top" className="relative overflow-hidden pt-32 pb-20 md:pt-40 md:pb-28">

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { portfolio } from "@/lib/portfolio";
+import { usePortfolio } from "@/lib/portfolioStore";
 import { SectionLabel } from "./About";
 import { Mail, Phone, Linkedin, Github, ArrowUpRight } from "lucide-react";
 
@@ -11,7 +11,7 @@ const iconMap: Record<string, typeof Mail> = {
 };
 
 export const Contact = () => {
-  const { contact, socials, hero } = portfolio;
+  const { contact, socials, hero } = usePortfolio();
 
   return (
     <section id="contact" className="py-24 md:py-32 border-t border-hairline relative overflow-hidden">
@@ -93,15 +93,21 @@ export const Contact = () => {
   );
 };
 
-export const Footer = () => (
-  <footer className="border-t border-hairline py-10">
-    <div className="container flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-        © {new Date().getFullYear()} Mohammad Ameenuddin · Built with data & care
-      </p>
-      <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-        Hyderabad → World
-      </p>
-    </div>
-  </footer>
-);
+export const Footer = () => {
+  const { hero } = usePortfolio();
+  return (
+    <footer className="border-t border-hairline py-10">
+      <div className="container flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+          © {new Date().getFullYear()} {hero.name} · Built with data & care
+        </p>
+        <a
+          href="/admin"
+          className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground hover:text-primary transition"
+        >
+          {hero.location.split("—")[0].trim()} → World · Admin
+        </a>
+      </div>
+    </footer>
+  );
+};

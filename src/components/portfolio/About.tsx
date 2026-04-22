@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { portfolio } from "@/lib/portfolio";
+import { usePortfolio } from "@/lib/portfolioStore";
 
 export const About = () => {
+  const portfolio = usePortfolio();
   return (
     <section id="about" className="py-24 md:py-32 border-t border-hairline">
       <div className="container">
