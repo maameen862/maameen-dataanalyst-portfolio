@@ -44,4 +44,5 @@ export type Portfolio = {
   certifications: Certification[];
 };
 
+// Fallback static data — runtime should prefer usePortfolio() from portfolioStore.
 export const portfolio = data as Portfolio;

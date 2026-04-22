@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { portfolio } from "@/lib/portfolio";
+import { usePortfolio } from "@/lib/portfolioStore";
 
 const sections = [
   { id: "about", label: "About" },
@@ -10,6 +10,7 @@ const sections = [
 ];
 
 export const Nav = () => {
+  const portfolio = usePortfolio();
   const [active, setActive] = useState("about");
   const [scrolled, setScrolled] = useState(false);
 
@@ -35,6 +36,12 @@ export const Nav = () => {
     return () => observer.disconnect();
   }, []);
 
+  const initials = portfolio.hero.name
+    .split(" ")
+    .map((s) => s[0])
+    .slice(0, 2)
+    .join("");
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -44,7 +51,7 @@ export const Nav = () => {
       <div className="container flex h-16 items-center justify-between">
         <a href="#top" className="flex items-center gap-2 group">
           <span className="font-display text-lg font-bold tracking-tight">
-            <span className="text-gradient-primary">MA</span>
+            <span className="text-gradient-primary">{initials}</span>
             <span className="text-foreground">.</span>
           </span>
           <span className="hidden sm:inline font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
