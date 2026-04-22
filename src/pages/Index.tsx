@@ -6,9 +6,10 @@ import { Skills } from "@/components/portfolio/Skills";
 import { Experience } from "@/components/portfolio/Experience";
 import { Projects } from "@/components/portfolio/Projects";
 import { Contact, Footer } from "@/components/portfolio/Contact";
-import { portfolio } from "@/lib/portfolio";
+import { usePortfolio } from "@/lib/portfolioStore";
 
 const Index = () => {
+  const portfolio = usePortfolio();
   useEffect(() => {
     document.title = `${portfolio.hero.name} — ${portfolio.hero.role} Portfolio`;
     const meta = document.querySelector('meta[name="description"]') ?? (() => {
@@ -50,7 +51,7 @@ const Index = () => {
         .map((s) => s.url),
     });
     document.head.appendChild(ld);
-  }, []);
+  }, [portfolio]);
 
   return (
     <main className="min-h-screen">

@@ -1,0 +1,862 @@
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  usePortfolio,
+  savePortfolio,
+  resetPortfolio,
+  exportPortfolio,
+  importPortfolio,
+} from "@/lib/portfolioStore";
+import { isAdminAuthed, tryAdminLogin, adminLogout } from "@/lib/adminAuth";
+import type {
+  Portfolio,
+  Skill,
+  Experience,
+  Project,
+  Certification,
+  Social,
+  Stat,
+} from "@/lib/portfolio";
+import { toast } from "@/hooks/use-toast";
+import {
+  ArrowLeft,
+  Download,
+  Upload,
+  RotateCcw,
+  LogOut,
+  Plus,
+  Trash2,
+  Save,
+  Lock,
+} from "lucide-react";
+
+const inputClass =
+  "w-full bg-secondary/40 border border-hairline rounded-sm px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition";
+const labelClass =
+  "font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 block";
+
+const uid = () => Math.random().toString(36).slice(2, 9);
+
+const AdminLogin = ({ onAuthed }: { onAuthed: () => void }) => {
+  const [pw, setPw] = useState("");
+  const [error, setError] = useState(false);
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (tryAdminLogin(pw)) {
+      onAuthed();
+    } else {
+      setError(true);
+      setPw("");
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-radial">
+      <motion.form
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        onSubmit={submit}
+        className="w-full max-w-sm border border-hairline bg-card/80 backdrop-blur p-8 rounded-sm shadow-elevated"
+      >
+        <div className="flex items-center gap-3 mb-6">
+          <div className="h-10 w-10 rounded-sm bg-primary/10 border border-primary/30 flex items-center justify-center">
+            <Lock className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <div className="font-display text-lg font-bold">Admin access</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Portfolio editor
+            </div>
+          </div>
+        </div>
+
+        <label className={labelClass}>Password</label>
+        <input
+          autoFocus
+          type="password"
+          value={pw}
+          onChange={(e) => {
+            setPw(e.target.value);
+            setError(false);
+          }}
+          className={`${inputClass} ${error ? "border-destructive ring-1 ring-destructive" : ""}`}
+          placeholder="••••••••"
+        />
+        {error && (
+          <p className="mt-2 text-xs text-destructive font-mono">Incorrect password.</p>
+        )}
+
+        <button
+          type="submit"
+          className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-sm bg-gradient-primary px-4 py-2.5 font-mono text-xs uppercase tracking-wider text-primary-foreground shadow-glow hover:scale-[1.01] transition"
+        >
+          Enter
+        </button>
+
+        <a
+          href="/"
+          className="mt-4 block text-center font-mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-primary transition"
+        >
+          ← Back to site
+        </a>
+      </motion.form>
+    </div>
+  );
+};
+
+const Section = ({
+  title,
+  index,
+  children,
+}: {
+  title: string;
+  index: string;
+  children: React.ReactNode;
+}) => (
+  <section className="border border-hairline bg-card/50 backdrop-blur rounded-sm p-6 md:p-8">
+    <div className="flex items-center gap-3 mb-6">
+      <span className="font-mono text-xs text-primary">{index}</span>
+      <h2 className="font-display text-xl font-bold">{title}</h2>
+      <span className="h-px flex-1 bg-border" />
+    </div>
+    <div className="space-y-4">{children}</div>
+  </section>
+);
+
+const Field = ({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) => (
+  <div>
+    <label className={labelClass}>{label}</label>
+    {children}
+  </div>
+);
+
+const ListCard = ({
+  children,
+  onRemove,
+  badge,
+}: {
+  children: React.ReactNode;
+  onRemove: () => void;
+  badge: string;
+}) => (
+  <div className="border border-hairline bg-secondary/30 rounded-sm p-4 space-y-3 relative">
+    <div className="flex items-center justify-between">
+      <span className="font-mono text-[10px] uppercase tracking-widest text-primary">
+        {badge}
+      </span>
+      <button
+        type="button"
+        onClick={onRemove}
+        className="text-muted-foreground hover:text-destructive transition"
+        aria-label="Remove"
+      >
+        <Trash2 className="h-4 w-4" />
+      </button>
+    </div>
+    {children}
+  </div>
+);
+
+const AddBtn = ({ onClick, label }: { onClick: () => void; label: string }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="inline-flex items-center gap-2 border border-dashed border-border hover:border-primary text-muted-foreground hover:text-primary rounded-sm px-3 py-2 font-mono text-[10px] uppercase tracking-widest transition"
+  >
+    <Plus className="h-3.5 w-3.5" /> {label}
+  </button>
+);
+
+const AdminEditor = ({ onLogout }: { onLogout: () => void }) => {
+  const live = usePortfolio();
+  const [draft, setDraft] = useState<Portfolio>(live);
+  const [dirty, setDirty] = useState(false);
+  const navigate = useNavigate();
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  // Sync draft when live data changes externally (e.g. reset)
+  useEffect(() => {
+    if (!dirty) setDraft(live);
+  }, [live, dirty]);
+
+  const update = <K extends keyof Portfolio>(key: K, value: Portfolio[K]) => {
+    setDraft((d) => ({ ...d, [key]: value }));
+    setDirty(true);
+  };
+
+  const save = () => {
+    savePortfolio(draft);
+    setDirty(false);
+    toast({ title: "Saved", description: "Portfolio updated. Changes are live." });
+  };
+
+  const onImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      await importPortfolio(file);
+      setDirty(false);
+      toast({ title: "Imported", description: "Portfolio loaded from file." });
+    } catch (err) {
+      toast({ title: "Import failed", description: String(err), variant: "destructive" });
+    } finally {
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="min-h-screen pb-32">
+      {/* Top bar */}
+      <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/80 border-b border-hairline">
+        <div className="container flex h-16 items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              onClick={() => navigate("/")}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-sm border border-hairline text-muted-foreground hover:text-primary hover:border-primary transition"
+              aria-label="Back to site"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+            <div className="min-w-0">
+              <div className="font-display text-base font-bold truncate">Portfolio Admin</div>
+              <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                {dirty ? "● Unsaved changes" : "All changes saved"}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              ref={fileRef}
+              type="file"
+              accept="application/json"
+              onChange={onImport}
+              className="hidden"
+            />
+            <button
+              onClick={() => fileRef.current?.click()}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-sm border border-hairline px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground hover:border-primary hover:text-primary transition"
+              title="Import JSON"
+            >
+              <Upload className="h-3.5 w-3.5" /> Import
+            </button>
+            <button
+              onClick={exportPortfolio}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-sm border border-hairline px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground hover:border-primary hover:text-primary transition"
+              title="Export JSON"
+            >
+              <Download className="h-3.5 w-3.5" /> Export
+            </button>
+            <button
+              onClick={() => {
+                if (confirm("Reset portfolio to default seed data? Your edits will be lost.")) {
+                  resetPortfolio();
+                  setDirty(false);
+                  toast({ title: "Reset", description: "Restored seed data." });
+                }
+              }}
+              className="hidden md:inline-flex items-center gap-1.5 rounded-sm border border-hairline px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground hover:border-destructive hover:text-destructive transition"
+              title="Reset to defaults"
+            >
+              <RotateCcw className="h-3.5 w-3.5" /> Reset
+            </button>
+            <button
+              onClick={save}
+              disabled={!dirty}
+              className="inline-flex items-center gap-1.5 rounded-sm bg-gradient-primary px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-primary-foreground shadow-glow disabled:opacity-40 disabled:shadow-none transition"
+            >
+              <Save className="h-3.5 w-3.5" /> Save
+            </button>
+            <button
+              onClick={onLogout}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-sm border border-hairline text-muted-foreground hover:text-destructive hover:border-destructive transition"
+              aria-label="Logout"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="container max-w-5xl py-10 space-y-6">
+        {/* Hero */}
+        <Section index="01" title="Hero">
+          <div className="grid md:grid-cols-2 gap-4">
+            <Field label="Name">
+              <input
+                className={inputClass}
+                value={draft.hero.name}
+                onChange={(e) => update("hero", { ...draft.hero, name: e.target.value })}
+              />
+            </Field>
+            <Field label="Role">
+              <input
+                className={inputClass}
+                value={draft.hero.role}
+                onChange={(e) => update("hero", { ...draft.hero, role: e.target.value })}
+              />
+            </Field>
+            <Field label="Location">
+              <input
+                className={inputClass}
+                value={draft.hero.location}
+                onChange={(e) => update("hero", { ...draft.hero, location: e.target.value })}
+              />
+            </Field>
+            <Field label="Availability">
+              <input
+                className={inputClass}
+                value={draft.hero.availability}
+                onChange={(e) =>
+                  update("hero", { ...draft.hero, availability: e.target.value })
+                }
+              />
+            </Field>
+          </div>
+          <Field label="Tagline">
+            <textarea
+              rows={3}
+              className={inputClass}
+              value={draft.hero.tagline}
+              onChange={(e) => update("hero", { ...draft.hero, tagline: e.target.value })}
+            />
+          </Field>
+        </Section>
+
+        {/* About + Resume */}
+        <Section index="02" title="About & Resume">
+          <Field label="About paragraph">
+            <textarea
+              rows={6}
+              className={inputClass}
+              value={draft.about}
+              onChange={(e) => update("about", e.target.value)}
+            />
+          </Field>
+          <Field label="Resume file path (relative to /public)">
+            <input
+              className={inputClass}
+              value={draft.resumeFile}
+              onChange={(e) => update("resumeFile", e.target.value)}
+              placeholder="/Mohammad_Ameenuddin_Resume.pdf"
+            />
+          </Field>
+        </Section>
+
+        {/* Contact + Socials */}
+        <Section index="03" title="Contact & Socials">
+          <div className="grid md:grid-cols-2 gap-4">
+            <Field label="Email">
+              <input
+                type="email"
+                className={inputClass}
+                value={draft.contact.email}
+                onChange={(e) =>
+                  update("contact", { ...draft.contact, email: e.target.value })
+                }
+              />
+            </Field>
+            <Field label="Phone">
+              <input
+                className={inputClass}
+                value={draft.contact.phone}
+                onChange={(e) =>
+                  update("contact", { ...draft.contact, phone: e.target.value })
+                }
+              />
+            </Field>
+          </div>
+
+          <div className="space-y-3 pt-4">
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Social links
+            </div>
+            {draft.socials.map((s, i) => (
+              <ListCard
+                key={s.id}
+                badge={`Link 0${i + 1}`}
+                onRemove={() =>
+                  update(
+                    "socials",
+                    draft.socials.filter((x) => x.id !== s.id)
+                  )
+                }
+              >
+                <div className="grid md:grid-cols-3 gap-3">
+                  <Field label="Label">
+                    <input
+                      className={inputClass}
+                      value={s.label}
+                      onChange={(e) => {
+                        const next = [...draft.socials];
+                        next[i] = { ...s, label: e.target.value };
+                        update("socials", next);
+                      }}
+                    />
+                  </Field>
+                  <Field label="URL">
+                    <input
+                      className={inputClass}
+                      value={s.url}
+                      onChange={(e) => {
+                        const next = [...draft.socials];
+                        next[i] = { ...s, url: e.target.value };
+                        update("socials", next);
+                      }}
+                    />
+                  </Field>
+                  <Field label="Icon (mail, phone, linkedin, github)">
+                    <input
+                      className={inputClass}
+                      value={s.icon}
+                      onChange={(e) => {
+                        const next = [...draft.socials];
+                        next[i] = { ...s, icon: e.target.value };
+                        update("socials", next);
+                      }}
+                    />
+                  </Field>
+                </div>
+              </ListCard>
+            ))}
+            <AddBtn
+              label="Add social"
+              onClick={() => {
+                const newSocial: Social = { id: uid(), label: "", url: "", icon: "mail" };
+                update("socials", [...draft.socials, newSocial]);
+              }}
+            />
+          </div>
+        </Section>
+
+        {/* Stats */}
+        <Section index="04" title="Stats strip">
+          <div className="grid md:grid-cols-2 gap-3">
+            {draft.stats.map((s, i) => (
+              <ListCard
+                key={i}
+                badge={`Stat 0${i + 1}`}
+                onRemove={() =>
+                  update(
+                    "stats",
+                    draft.stats.filter((_, j) => j !== i)
+                  )
+                }
+              >
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Value">
+                    <input
+                      className={inputClass}
+                      value={s.value}
+                      onChange={(e) => {
+                        const next = [...draft.stats];
+                        next[i] = { ...s, value: e.target.value };
+                        update("stats", next);
+                      }}
+                    />
+                  </Field>
+                  <Field label="Label">
+                    <input
+                      className={inputClass}
+                      value={s.label}
+                      onChange={(e) => {
+                        const next = [...draft.stats];
+                        next[i] = { ...s, label: e.target.value };
+                        update("stats", next);
+                      }}
+                    />
+                  </Field>
+                </div>
+              </ListCard>
+            ))}
+          </div>
+          <AddBtn
+            label="Add stat"
+            onClick={() => {
+              const newStat: Stat = { value: "0", label: "New stat" };
+              update("stats", [...draft.stats, newStat]);
+            }}
+          />
+        </Section>
+
+        {/* Skills */}
+        <Section index="05" title="Skills">
+          <div className="space-y-3">
+            {draft.skills.map((s, i) => (
+              <ListCard
+                key={s.id}
+                badge={`Skill 0${i + 1}`}
+                onRemove={() =>
+                  update(
+                    "skills",
+                    draft.skills.filter((x) => x.id !== s.id)
+                  )
+                }
+              >
+                <div className="grid md:grid-cols-[1fr_140px] gap-3 items-end">
+                  <Field label="Name">
+                    <input
+                      className={inputClass}
+                      value={s.name}
+                      onChange={(e) => {
+                        const next = [...draft.skills];
+                        next[i] = { ...s, name: e.target.value };
+                        update("skills", next);
+                      }}
+                    />
+                  </Field>
+                  <Field label={`Level (${s.level}/100)`}>
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      value={s.level}
+                      onChange={(e) => {
+                        const next = [...draft.skills];
+                        next[i] = { ...s, level: Number(e.target.value) };
+                        update("skills", next);
+                      }}
+                      className="w-full accent-primary"
+                    />
+                  </Field>
+                </div>
+              </ListCard>
+            ))}
+            <AddBtn
+              label="Add skill"
+              onClick={() => {
+                const newSkill: Skill = { id: uid(), name: "New skill", level: 70 };
+                update("skills", [...draft.skills, newSkill]);
+              }}
+            />
+          </div>
+        </Section>
+
+        {/* Experience */}
+        <Section index="06" title="Experience">
+          <div className="space-y-3">
+            {draft.experience.map((exp, i) => (
+              <ListCard
+                key={exp.id}
+                badge={`Role 0${i + 1}`}
+                onRemove={() =>
+                  update(
+                    "experience",
+                    draft.experience.filter((x) => x.id !== exp.id)
+                  )
+                }
+              >
+                <div className="grid md:grid-cols-2 gap-3">
+                  <Field label="Role">
+                    <input
+                      className={inputClass}
+                      value={exp.role}
+                      onChange={(e) => {
+                        const next = [...draft.experience];
+                        next[i] = { ...exp, role: e.target.value };
+                        update("experience", next);
+                      }}
+                    />
+                  </Field>
+                  <Field label="Company">
+                    <input
+                      className={inputClass}
+                      value={exp.company}
+                      onChange={(e) => {
+                        const next = [...draft.experience];
+                        next[i] = { ...exp, company: e.target.value };
+                        update("experience", next);
+                      }}
+                    />
+                  </Field>
+                  <Field label="Period">
+                    <input
+                      className={inputClass}
+                      value={exp.period}
+                      onChange={(e) => {
+                        const next = [...draft.experience];
+                        next[i] = { ...exp, period: e.target.value };
+                        update("experience", next);
+                      }}
+                    />
+                  </Field>
+                  <Field label="Location">
+                    <input
+                      className={inputClass}
+                      value={exp.location}
+                      onChange={(e) => {
+                        const next = [...draft.experience];
+                        next[i] = { ...exp, location: e.target.value };
+                        update("experience", next);
+                      }}
+                    />
+                  </Field>
+                </div>
+                <Field label="Bullets (one per line)">
+                  <textarea
+                    rows={Math.max(3, exp.bullets.length)}
+                    className={inputClass}
+                    value={exp.bullets.join("\n")}
+                    onChange={(e) => {
+                      const next = [...draft.experience];
+                      next[i] = {
+                        ...exp,
+                        bullets: e.target.value.split("\n").filter((l) => l.length > 0),
+                      };
+                      update("experience", next);
+                    }}
+                  />
+                </Field>
+              </ListCard>
+            ))}
+            <AddBtn
+              label="Add role"
+              onClick={() => {
+                const newExp: Experience = {
+                  id: uid(),
+                  role: "New role",
+                  company: "Company",
+                  period: "2024 — Present",
+                  location: "Remote",
+                  bullets: ["Achievement"],
+                };
+                update("experience", [...draft.experience, newExp]);
+              }}
+            />
+          </div>
+        </Section>
+
+        {/* Projects */}
+        <Section index="07" title="Projects">
+          <div className="space-y-3">
+            {draft.projects.map((p, i) => (
+              <ListCard
+                key={p.id}
+                badge={`Project 0${i + 1}${p.featured ? " · ★" : ""}`}
+                onRemove={() =>
+                  update(
+                    "projects",
+                    draft.projects.filter((x) => x.id !== p.id)
+                  )
+                }
+              >
+                <div className="grid md:grid-cols-2 gap-3">
+                  <Field label="Title">
+                    <input
+                      className={inputClass}
+                      value={p.title}
+                      onChange={(e) => {
+                        const next = [...draft.projects];
+                        next[i] = { ...p, title: e.target.value };
+                        update("projects", next);
+                      }}
+                    />
+                  </Field>
+                  <Field label="Subtitle">
+                    <input
+                      className={inputClass}
+                      value={p.subtitle}
+                      onChange={(e) => {
+                        const next = [...draft.projects];
+                        next[i] = { ...p, subtitle: e.target.value };
+                        update("projects", next);
+                      }}
+                    />
+                  </Field>
+                  <Field label="Period">
+                    <input
+                      className={inputClass}
+                      value={p.period}
+                      onChange={(e) => {
+                        const next = [...draft.projects];
+                        next[i] = { ...p, period: e.target.value };
+                        update("projects", next);
+                      }}
+                    />
+                  </Field>
+                  <Field label="Category">
+                    <input
+                      className={inputClass}
+                      value={p.category}
+                      onChange={(e) => {
+                        const next = [...draft.projects];
+                        next[i] = { ...p, category: e.target.value };
+                        update("projects", next);
+                      }}
+                    />
+                  </Field>
+                  <Field label="Link (optional)">
+                    <input
+                      className={inputClass}
+                      value={p.link}
+                      onChange={(e) => {
+                        const next = [...draft.projects];
+                        next[i] = { ...p, link: e.target.value };
+                        update("projects", next);
+                      }}
+                    />
+                  </Field>
+                  <Field label="Featured">
+                    <label className="inline-flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={p.featured}
+                        onChange={(e) => {
+                          const next = [...draft.projects];
+                          next[i] = { ...p, featured: e.target.checked };
+                          update("projects", next);
+                        }}
+                        className="h-4 w-4 accent-primary"
+                      />
+                      <span className="text-muted-foreground">Show as wide card</span>
+                    </label>
+                  </Field>
+                </div>
+                <Field label="Description">
+                  <textarea
+                    rows={3}
+                    className={inputClass}
+                    value={p.description}
+                    onChange={(e) => {
+                      const next = [...draft.projects];
+                      next[i] = { ...p, description: e.target.value };
+                      update("projects", next);
+                    }}
+                  />
+                </Field>
+                <Field label="Highlights (one per line)">
+                  <textarea
+                    rows={Math.max(3, p.highlights.length)}
+                    className={inputClass}
+                    value={p.highlights.join("\n")}
+                    onChange={(e) => {
+                      const next = [...draft.projects];
+                      next[i] = {
+                        ...p,
+                        highlights: e.target.value.split("\n").filter((l) => l.length > 0),
+                      };
+                      update("projects", next);
+                    }}
+                  />
+                </Field>
+                <Field label="Tools (comma-separated)">
+                  <input
+                    className={inputClass}
+                    value={p.tools.join(", ")}
+                    onChange={(e) => {
+                      const next = [...draft.projects];
+                      next[i] = {
+                        ...p,
+                        tools: e.target.value
+                          .split(",")
+                          .map((t) => t.trim())
+                          .filter(Boolean),
+                      };
+                      update("projects", next);
+                    }}
+                  />
+                </Field>
+              </ListCard>
+            ))}
+            <AddBtn
+              label="Add project"
+              onClick={() => {
+                const newProj: Project = {
+                  id: uid(),
+                  title: "New project",
+                  subtitle: "",
+                  period: "",
+                  description: "",
+                  highlights: [],
+                  tools: [],
+                  link: "",
+                  category: "General",
+                  featured: false,
+                };
+                update("projects", [...draft.projects, newProj]);
+              }}
+            />
+          </div>
+        </Section>
+
+        {/* Certifications */}
+        <Section index="08" title="Certifications">
+          <div className="space-y-3">
+            {draft.certifications.map((c, i) => (
+              <ListCard
+                key={c.id}
+                badge={`Cert 0${i + 1}`}
+                onRemove={() =>
+                  update(
+                    "certifications",
+                    draft.certifications.filter((x) => x.id !== c.id)
+                  )
+                }
+              >
+                <Field label="Name">
+                  <input
+                    className={inputClass}
+                    value={c.name}
+                    onChange={(e) => {
+                      const next = [...draft.certifications];
+                      next[i] = { ...c, name: e.target.value };
+                      update("certifications", next);
+                    }}
+                  />
+                </Field>
+              </ListCard>
+            ))}
+            <AddBtn
+              label="Add certification"
+              onClick={() => {
+                const newCert: Certification = { id: uid(), name: "New certification" };
+                update("certifications", [...draft.certifications, newCert]);
+              }}
+            />
+          </div>
+        </Section>
+
+        {/* Bottom save bar */}
+        <div className="sticky bottom-4 flex justify-end">
+          <button
+            onClick={save}
+            disabled={!dirty}
+            className="inline-flex items-center gap-2 rounded-sm bg-gradient-primary px-5 py-3 font-mono text-xs uppercase tracking-wider text-primary-foreground shadow-glow disabled:opacity-40 disabled:shadow-none transition"
+          >
+            <Save className="h-4 w-4" />
+            {dirty ? "Save changes" : "All saved"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Admin = () => {
+  const [authed, setAuthed] = useState(() => isAdminAuthed());
+
+  useEffect(() => {
+    document.title = "Admin · Portfolio Editor";
+  }, []);
+
+  if (!authed) return <AdminLogin onAuthed={() => setAuthed(true)} />;
+
+  return (
+    <AdminEditor
+      onLogout={() => {
+        adminLogout();
+        setAuthed(false);
+      }}
+    />
+  );
+};
+
+export default Admin;

@@ -1,13 +1,16 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
-import { portfolio } from "@/lib/portfolio";
+import { useMemo, useState } from "react";
+import { usePortfolio } from "@/lib/portfolioStore";
 import { SectionLabel } from "./About";
 import { ArrowUpRight, Calendar } from "lucide-react";
 
-const categories = ["All", "Banking", "Retail", "Operations", "Media", "Sports"];
-
 export const Projects = () => {
+  const portfolio = usePortfolio();
   const [filter, setFilter] = useState("All");
+  const categories = useMemo(
+    () => ["All", ...Array.from(new Set(portfolio.projects.map((p) => p.category)))],
+    [portfolio.projects]
+  );
   const projects = portfolio.projects.filter((p) => filter === "All" || p.category === filter);
 
   return (

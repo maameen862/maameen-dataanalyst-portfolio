@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { portfolio } from "@/lib/portfolio";
+import { usePortfolio } from "@/lib/portfolioStore";
 import { SectionLabel } from "./About";
 
 export const Skills = () => {
+  const portfolio = usePortfolio();
   return (
     <section id="skills" className="py-24 md:py-32 border-t border-hairline relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-radial opacity-50 pointer-events-none" />
