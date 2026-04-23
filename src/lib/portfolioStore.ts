@@ -62,11 +62,13 @@ const ProjectSchema = z.object({
   link: safeUrl.max(2048),
   category: z.string().max(100),
   featured: z.boolean(),
+  image: safeUrl.max(2048).optional().or(z.literal("")),
 });
 
 const CertificationSchema = z.object({
   id: z.string(),
   name: z.string().max(300),
+  image: safeUrl.max(2048).optional().or(z.literal("")),
 });
 
 const PortfolioSchema = z.object({
