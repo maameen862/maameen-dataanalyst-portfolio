@@ -22,8 +22,9 @@ export type Project = {
   link: string;
   category: string;
   featured: boolean;
+  image?: string;
 };
-export type Certification = { id: string; name: string };
+export type Certification = { id: string; name: string; image?: string };
 
 export type Portfolio = {
   hero: {

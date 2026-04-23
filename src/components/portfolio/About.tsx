@@ -50,10 +50,22 @@ export const About = () => {
 
             <div className="mt-4 grid grid-cols-3 gap-px border border-hairline bg-border rounded-sm overflow-hidden">
               {portfolio.certifications.map((c, i) => (
-                <div key={c.id} className="bg-card p-4">
-                  <div className="font-mono text-[10px] text-primary">CERT 0{i + 1}</div>
-                  <div className="mt-2 text-[11px] leading-snug text-muted-foreground">
-                    {c.name.split("—")[0].trim()}
+                <div key={c.id} className="bg-card p-4 flex flex-col gap-3">
+                  {c.image && (
+                    <div className="aspect-[4/3] overflow-hidden rounded-sm border border-hairline bg-secondary/40">
+                      <img
+                        src={c.image}
+                        alt={`${c.name} certificate`}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <div className="font-mono text-[10px] text-primary">CERT 0{i + 1}</div>
+                    <div className="mt-2 text-[11px] leading-snug text-muted-foreground">
+                      {c.name.split("—")[0].trim()}
+                    </div>
                   </div>
                 </div>
               ))}
