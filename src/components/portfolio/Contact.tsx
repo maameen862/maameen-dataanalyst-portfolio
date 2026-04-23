@@ -101,12 +101,9 @@ export const Footer = () => {
         <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
           © {new Date().getFullYear()} {hero.name} · Built with data & care
         </p>
-        <a
-          href="/admin"
-          className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground hover:text-primary transition"
-        >
-          {hero.location.split("—")[0].trim()} → World · Admin
-        </a>
+        <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+          {hero.location.split("—")[0].trim()} → World
+        </p>
       </div>
     </footer>
   );
