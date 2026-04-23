@@ -117,10 +117,11 @@ export const Projects = () => {
               </div>
 
               {p.featured && (
-                <div className="absolute top-6 right-6 font-mono text-[9px] uppercase tracking-widest text-primary border border-primary/40 px-2 py-0.5 rounded-sm bg-primary/10">
+                <div className="absolute top-6 right-6 font-mono text-[9px] uppercase tracking-widest text-primary border border-primary/40 px-2 py-0.5 rounded-sm bg-primary/10 z-10">
                   ★ Featured
                 </div>
               )}
+              </div>
             </motion.article>
           ))}
         </div>
