@@ -71,6 +71,32 @@ const CertificationSchema = z.object({
   image: safeUrl.max(2048).optional().or(z.literal("")),
 });
 
+const CustomSectionSchema = z.object({
+  id: z.string(),
+  title: z.string().max(200),
+  body: z.string().max(5000),
+  image: safeUrl.max(2048).optional().or(z.literal("")),
+});
+
+const GalleryImageSchema = z.object({
+  id: z.string(),
+  url: safeUrl.max(2048),
+  caption: z.string().max(300).optional().or(z.literal("")),
+});
+
+const PostSchema = z.object({
+  id: z.string(),
+  title: z.string().max(300),
+  date: z.string().max(50),
+  body: z.string().max(5000),
+});
+
+const VisibilitySchema = z.object({
+  customSections: z.boolean(),
+  gallery: z.boolean(),
+  posts: z.boolean(),
+});
+
 const PortfolioSchema = z.object({
   hero: z.object({
     name: z.string().max(200),
@@ -91,6 +117,10 @@ const PortfolioSchema = z.object({
   experience: z.array(ExperienceSchema),
   projects: z.array(ProjectSchema),
   certifications: z.array(CertificationSchema),
+  customSections: z.array(CustomSectionSchema).optional(),
+  gallery: z.array(GalleryImageSchema).optional(),
+  posts: z.array(PostSchema).optional(),
+  visibility: VisibilitySchema.optional(),
 });
 
 const readFromStorage = (): Portfolio => {

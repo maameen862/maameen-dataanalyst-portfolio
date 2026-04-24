@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { usePortfolio } from "@/lib/portfolioStore";
 
-const sections = [
+const baseSections = [
   { id: "about", label: "About" },
   { id: "skills", label: "Skills" },
   { id: "experience", label: "Experience" },
@@ -13,6 +13,33 @@ export const Nav = () => {
   const portfolio = usePortfolio();
   const [active, setActive] = useState("about");
   const [scrolled, setScrolled] = useState(false);
+
+  const sections = (() => {
+    const out = [...baseSections];
+    const insertBeforeContact = (entry: { id: string; label: string }) => {
+      const idx = out.findIndex((s) => s.id === "contact");
+      out.splice(idx, 0, entry);
+    };
+    if (
+      portfolio.visibility?.customSections !== false &&
+      (portfolio.customSections?.length ?? 0) > 0
+    ) {
+      insertBeforeContact({ id: "more", label: "More" });
+    }
+    if (
+      portfolio.visibility?.gallery !== false &&
+      (portfolio.gallery?.length ?? 0) > 0
+    ) {
+      insertBeforeContact({ id: "gallery", label: "Gallery" });
+    }
+    if (
+      portfolio.visibility?.posts !== false &&
+      (portfolio.posts?.length ?? 0) > 0
+    ) {
+      insertBeforeContact({ id: "posts", label: "Posts" });
+    }
+    return out;
+  })();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -34,7 +61,7 @@ export const Nav = () => {
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
-  }, []);
+  }, [sections]);
 
   const initials = portfolio.hero.name
     .split(" ")

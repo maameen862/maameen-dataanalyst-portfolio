@@ -5,6 +5,9 @@ import { About } from "@/components/portfolio/About";
 import { Skills } from "@/components/portfolio/Skills";
 import { Experience } from "@/components/portfolio/Experience";
 import { Projects } from "@/components/portfolio/Projects";
+import { CustomSections } from "@/components/portfolio/CustomSections";
+import { Gallery } from "@/components/portfolio/Gallery";
+import { Posts } from "@/components/portfolio/Posts";
 import { Contact, Footer } from "@/components/portfolio/Contact";
 import { usePortfolio } from "@/lib/portfolioStore";
 
@@ -61,6 +64,9 @@ const Index = () => {
       <Skills />
       <Experience />
       <Projects />
+      <CustomSections />
+      <Gallery />
+      <Posts />
       <Contact />
       <Footer />
     </main>
