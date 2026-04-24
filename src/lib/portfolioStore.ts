@@ -64,25 +64,25 @@ const ProjectSchema = z.object({
   link: safeUrl.max(2048),
   category: z.string().max(100),
   featured: z.boolean(),
-  image: safeUrl.max(2048).optional().or(z.literal("")),
+  image: safeUrl.max(3_000_000).optional().or(z.literal("")),
 });
 
 const CertificationSchema = z.object({
   id: z.string(),
   name: z.string().max(300),
-  image: safeUrl.max(2048).optional().or(z.literal("")),
+  image: safeUrl.max(3_000_000).optional().or(z.literal("")),
 });
 
 const CustomSectionSchema = z.object({
   id: z.string(),
   title: z.string().max(200),
   body: z.string().max(5000),
-  image: safeUrl.max(2048).optional().or(z.literal("")),
+  image: safeUrl.max(3_000_000).optional().or(z.literal("")),
 });
 
 const GalleryImageSchema = z.object({
   id: z.string(),
-  url: safeUrl.max(2048),
+  url: safeUrl.max(3_000_000),
   caption: z.string().max(300).optional().or(z.literal("")),
 });
 
