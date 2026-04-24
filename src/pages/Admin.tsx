@@ -769,24 +769,15 @@ const AdminEditor = ({ onLogout }: { onLogout: () => void }) => {
                     }}
                   />
                 </Field>
-                <Field label="Image URL (optional — shown at top of card)">
-                  <input
-                    className={inputClass}
-                    placeholder="https://… or /uploads/preview.png"
+                <Field label="Image (optional — shown at top of card)">
+                  <ImageField
                     value={p.image ?? ""}
-                    onChange={(e) => {
+                    onChange={(val) => {
                       const next = [...draft.projects];
-                      next[i] = { ...p, image: e.target.value };
+                      next[i] = { ...p, image: val };
                       update("projects", next);
                     }}
                   />
-                  {p.image && (
-                    <img
-                      src={p.image}
-                      alt=""
-                      className="mt-2 h-24 w-auto rounded-sm border border-hairline object-cover"
-                    />
-                  )}
                 </Field>
               </ListCard>
             ))}
