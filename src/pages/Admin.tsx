@@ -827,24 +827,16 @@ const AdminEditor = ({ onLogout }: { onLogout: () => void }) => {
                     }}
                   />
                 </Field>
-                <Field label="Image URL (optional — certificate badge or screenshot)">
-                  <input
-                    className={inputClass}
-                    placeholder="https://… or /uploads/cert.png"
+                <Field label="Image (optional — certificate badge or screenshot)">
+                  <ImageField
                     value={c.image ?? ""}
-                    onChange={(e) => {
+                    previewClassName="mt-2 h-20 w-auto rounded-sm border border-hairline object-cover"
+                    onChange={(val) => {
                       const next = [...draft.certifications];
-                      next[i] = { ...c, image: e.target.value };
+                      next[i] = { ...c, image: val };
                       update("certifications", next);
                     }}
                   />
-                  {c.image && (
-                    <img
-                      src={c.image}
-                      alt=""
-                      className="mt-2 h-20 w-auto rounded-sm border border-hairline object-cover"
-                    />
-                  )}
                 </Field>
               </ListCard>
             ))}
