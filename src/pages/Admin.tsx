@@ -17,6 +17,10 @@ import type {
   Certification,
   Social,
   Stat,
+  CustomSection,
+  GalleryImage,
+  Post,
+  SectionVisibility,
 } from "@/lib/portfolio";
 import { toast } from "@/hooks/use-toast";
 import {
@@ -857,6 +861,280 @@ const AdminEditor = ({ onLogout }: { onLogout: () => void }) => {
               onClick={() => {
                 const newCert: Certification = { id: uid(), name: "New certification" };
                 update("certifications", [...draft.certifications, newCert]);
+              }}
+            />
+          </div>
+        </Section>
+
+        {/* Visibility toggles */}
+        <Section index="09" title="Optional sections — visibility">
+          <p className="text-xs text-muted-foreground -mt-2">
+            Toggle off to hide a section site-wide. Sections also auto-hide when they have no items.
+          </p>
+          {(() => {
+            const v: SectionVisibility = {
+              customSections: draft.visibility?.customSections !== false,
+              gallery: draft.visibility?.gallery !== false,
+              posts: draft.visibility?.posts !== false,
+            };
+            const setV = (key: keyof SectionVisibility, value: boolean) => {
+              update("visibility", { ...v, [key]: value });
+            };
+            const Row = ({
+              label,
+              hint,
+              checked,
+              onChange,
+            }: {
+              label: string;
+              hint: string;
+              checked: boolean;
+              onChange: (b: boolean) => void;
+            }) => (
+              <label className="flex items-start justify-between gap-4 border border-hairline rounded-sm bg-secondary/30 p-4 cursor-pointer">
+                <div>
+                  <div className="font-mono text-[11px] uppercase tracking-widest text-foreground">
+                    {label}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">{hint}</div>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={(e) => onChange(e.target.checked)}
+                  className="h-4 w-4 mt-1 accent-primary"
+                />
+              </label>
+            );
+            return (
+              <div className="grid md:grid-cols-3 gap-3">
+                <Row
+                  label="Custom sections"
+                  hint="Title + text + optional image blocks."
+                  checked={v.customSections}
+                  onChange={(b) => setV("customSections", b)}
+                />
+                <Row
+                  label="Gallery"
+                  hint="Masonry image grid."
+                  checked={v.gallery}
+                  onChange={(b) => setV("gallery", b)}
+                />
+                <Row
+                  label="Posts"
+                  hint="Title + date + body entries."
+                  checked={v.posts}
+                  onChange={(b) => setV("posts", b)}
+                />
+              </div>
+            );
+          })()}
+        </Section>
+
+        {/* Custom Sections */}
+        <Section index="10" title="Custom sections (optional)">
+          <p className="text-xs text-muted-foreground -mt-2">
+            Free-form blocks shown on the site. Each has a title, body, and optional image.
+          </p>
+          <div className="space-y-3">
+            {(draft.customSections ?? []).map((s, i) => (
+              <ListCard
+                key={s.id}
+                badge={`Section 0${i + 1}`}
+                onRemove={() =>
+                  update(
+                    "customSections",
+                    (draft.customSections ?? []).filter((x) => x.id !== s.id)
+                  )
+                }
+              >
+                <Field label="Title">
+                  <input
+                    className={inputClass}
+                    value={s.title}
+                    onChange={(e) => {
+                      const next = [...(draft.customSections ?? [])];
+                      next[i] = { ...s, title: e.target.value };
+                      update("customSections", next);
+                    }}
+                  />
+                </Field>
+                <Field label="Body (line breaks preserved)">
+                  <textarea
+                    rows={5}
+                    className={inputClass}
+                    value={s.body}
+                    onChange={(e) => {
+                      const next = [...(draft.customSections ?? [])];
+                      next[i] = { ...s, body: e.target.value };
+                      update("customSections", next);
+                    }}
+                  />
+                </Field>
+                <Field label="Image URL (optional)">
+                  <input
+                    className={inputClass}
+                    placeholder="https://… or /uploads/photo.jpg"
+                    value={s.image ?? ""}
+                    onChange={(e) => {
+                      const next = [...(draft.customSections ?? [])];
+                      next[i] = { ...s, image: e.target.value };
+                      update("customSections", next);
+                    }}
+                  />
+                  {s.image && (
+                    <img
+                      src={s.image}
+                      alt=""
+                      className="mt-2 h-24 w-auto rounded-sm border border-hairline object-cover"
+                    />
+                  )}
+                </Field>
+              </ListCard>
+            ))}
+            <AddBtn
+              label="Add custom section"
+              onClick={() => {
+                const newSection: CustomSection = {
+                  id: uid(),
+                  title: "New section",
+                  body: "",
+                };
+                update("customSections", [...(draft.customSections ?? []), newSection]);
+              }}
+            />
+          </div>
+        </Section>
+
+        {/* Gallery */}
+        <Section index="11" title="Gallery (optional)">
+          <p className="text-xs text-muted-foreground -mt-2">
+            Add image URLs — they render as a masonry grid on the site.
+          </p>
+          <div className="space-y-3">
+            {(draft.gallery ?? []).map((g, i) => (
+              <ListCard
+                key={g.id}
+                badge={`Image 0${i + 1}`}
+                onRemove={() =>
+                  update(
+                    "gallery",
+                    (draft.gallery ?? []).filter((x) => x.id !== g.id)
+                  )
+                }
+              >
+                <Field label="Image URL">
+                  <input
+                    className={inputClass}
+                    placeholder="https://… or /uploads/photo.jpg"
+                    value={g.url}
+                    onChange={(e) => {
+                      const next = [...(draft.gallery ?? [])];
+                      next[i] = { ...g, url: e.target.value };
+                      update("gallery", next);
+                    }}
+                  />
+                  {g.url && (
+                    <img
+                      src={g.url}
+                      alt=""
+                      className="mt-2 h-24 w-auto rounded-sm border border-hairline object-cover"
+                    />
+                  )}
+                </Field>
+                <Field label="Caption (optional)">
+                  <input
+                    className={inputClass}
+                    value={g.caption ?? ""}
+                    onChange={(e) => {
+                      const next = [...(draft.gallery ?? [])];
+                      next[i] = { ...g, caption: e.target.value };
+                      update("gallery", next);
+                    }}
+                  />
+                </Field>
+              </ListCard>
+            ))}
+            <AddBtn
+              label="Add gallery image"
+              onClick={() => {
+                const newImg: GalleryImage = { id: uid(), url: "" };
+                update("gallery", [...(draft.gallery ?? []), newImg]);
+              }}
+            />
+          </div>
+        </Section>
+
+        {/* Posts */}
+        <Section index="12" title="Posts (optional)">
+          <p className="text-xs text-muted-foreground -mt-2">
+            Short notes or updates with a date. Sorted newest first when dates are valid.
+          </p>
+          <div className="space-y-3">
+            {(draft.posts ?? []).map((p, i) => (
+              <ListCard
+                key={p.id}
+                badge={`Post 0${i + 1}`}
+                onRemove={() =>
+                  update(
+                    "posts",
+                    (draft.posts ?? []).filter((x) => x.id !== p.id)
+                  )
+                }
+              >
+                <div className="grid md:grid-cols-3 gap-3">
+                  <div className="md:col-span-2">
+                    <Field label="Title">
+                      <input
+                        className={inputClass}
+                        value={p.title}
+                        onChange={(e) => {
+                          const next = [...(draft.posts ?? [])];
+                          next[i] = { ...p, title: e.target.value };
+                          update("posts", next);
+                        }}
+                      />
+                    </Field>
+                  </div>
+                  <Field label="Date (e.g. Apr 2026)">
+                    <input
+                      className={inputClass}
+                      value={p.date}
+                      onChange={(e) => {
+                        const next = [...(draft.posts ?? [])];
+                        next[i] = { ...p, date: e.target.value };
+                        update("posts", next);
+                      }}
+                    />
+                  </Field>
+                </div>
+                <Field label="Body">
+                  <textarea
+                    rows={5}
+                    className={inputClass}
+                    value={p.body}
+                    onChange={(e) => {
+                      const next = [...(draft.posts ?? [])];
+                      next[i] = { ...p, body: e.target.value };
+                      update("posts", next);
+                    }}
+                  />
+                </Field>
+              </ListCard>
+            ))}
+            <AddBtn
+              label="Add post"
+              onClick={() => {
+                const newPost: Post = {
+                  id: uid(),
+                  title: "New post",
+                  date: new Date().toLocaleDateString("en-US", {
+                    month: "short",
+                    year: "numeric",
+                  }),
+                  body: "",
+                };
+                update("posts", [...(draft.posts ?? []), newPost]);
               }}
             />
           </div>
