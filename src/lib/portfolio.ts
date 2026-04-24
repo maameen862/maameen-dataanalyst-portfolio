@@ -26,6 +26,32 @@ export type Project = {
 };
 export type Certification = { id: string; name: string; image?: string };
 
+export type CustomSection = {
+  id: string;
+  title: string;
+  body: string;
+  image?: string;
+};
+
+export type GalleryImage = {
+  id: string;
+  url: string;
+  caption?: string;
+};
+
+export type Post = {
+  id: string;
+  title: string;
+  date: string;
+  body: string;
+};
+
+export type SectionVisibility = {
+  customSections: boolean;
+  gallery: boolean;
+  posts: boolean;
+};
+
 export type Portfolio = {
   hero: {
     name: string;
@@ -43,6 +69,10 @@ export type Portfolio = {
   experience: Experience[];
   projects: Project[];
   certifications: Certification[];
+  customSections?: CustomSection[];
+  gallery?: GalleryImage[];
+  posts?: Post[];
+  visibility?: SectionVisibility;
 };
 
 // Fallback static data — runtime should prefer usePortfolio() from portfolioStore.
