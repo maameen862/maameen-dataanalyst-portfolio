@@ -955,24 +955,15 @@ const AdminEditor = ({ onLogout }: { onLogout: () => void }) => {
                     }}
                   />
                 </Field>
-                <Field label="Image URL (optional)">
-                  <input
-                    className={inputClass}
-                    placeholder="https://… or /uploads/photo.jpg"
+                <Field label="Image (optional)">
+                  <ImageField
                     value={s.image ?? ""}
-                    onChange={(e) => {
+                    onChange={(val) => {
                       const next = [...(draft.customSections ?? [])];
-                      next[i] = { ...s, image: e.target.value };
+                      next[i] = { ...s, image: val };
                       update("customSections", next);
                     }}
                   />
-                  {s.image && (
-                    <img
-                      src={s.image}
-                      alt=""
-                      className="mt-2 h-24 w-auto rounded-sm border border-hairline object-cover"
-                    />
-                  )}
                 </Field>
               </ListCard>
             ))}
