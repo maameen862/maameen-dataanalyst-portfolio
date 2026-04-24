@@ -998,24 +998,15 @@ const AdminEditor = ({ onLogout }: { onLogout: () => void }) => {
                   )
                 }
               >
-                <Field label="Image URL">
-                  <input
-                    className={inputClass}
-                    placeholder="https://… or /uploads/photo.jpg"
+                <Field label="Image">
+                  <ImageField
                     value={g.url}
-                    onChange={(e) => {
+                    onChange={(val) => {
                       const next = [...(draft.gallery ?? [])];
-                      next[i] = { ...g, url: e.target.value };
+                      next[i] = { ...g, url: val };
                       update("gallery", next);
                     }}
                   />
-                  {g.url && (
-                    <img
-                      src={g.url}
-                      alt=""
-                      className="mt-2 h-24 w-auto rounded-sm border border-hairline object-cover"
-                    />
-                  )}
                 </Field>
                 <Field label="Caption (optional)">
                   <input
