@@ -23,6 +23,7 @@ import type {
   SectionVisibility,
 } from "@/lib/portfolio";
 import { toast } from "@/hooks/use-toast";
+import { ImageField } from "@/components/admin/ImageField";
 import {
   ArrowLeft,
   Download,
@@ -768,24 +769,15 @@ const AdminEditor = ({ onLogout }: { onLogout: () => void }) => {
                     }}
                   />
                 </Field>
-                <Field label="Image URL (optional — shown at top of card)">
-                  <input
-                    className={inputClass}
-                    placeholder="https://… or /uploads/preview.png"
+                <Field label="Image (optional — shown at top of card)">
+                  <ImageField
                     value={p.image ?? ""}
-                    onChange={(e) => {
+                    onChange={(val) => {
                       const next = [...draft.projects];
-                      next[i] = { ...p, image: e.target.value };
+                      next[i] = { ...p, image: val };
                       update("projects", next);
                     }}
                   />
-                  {p.image && (
-                    <img
-                      src={p.image}
-                      alt=""
-                      className="mt-2 h-24 w-auto rounded-sm border border-hairline object-cover"
-                    />
-                  )}
                 </Field>
               </ListCard>
             ))}
@@ -835,24 +827,16 @@ const AdminEditor = ({ onLogout }: { onLogout: () => void }) => {
                     }}
                   />
                 </Field>
-                <Field label="Image URL (optional — certificate badge or screenshot)">
-                  <input
-                    className={inputClass}
-                    placeholder="https://… or /uploads/cert.png"
+                <Field label="Image (optional — certificate badge or screenshot)">
+                  <ImageField
                     value={c.image ?? ""}
-                    onChange={(e) => {
+                    previewClassName="mt-2 h-20 w-auto rounded-sm border border-hairline object-cover"
+                    onChange={(val) => {
                       const next = [...draft.certifications];
-                      next[i] = { ...c, image: e.target.value };
+                      next[i] = { ...c, image: val };
                       update("certifications", next);
                     }}
                   />
-                  {c.image && (
-                    <img
-                      src={c.image}
-                      alt=""
-                      className="mt-2 h-20 w-auto rounded-sm border border-hairline object-cover"
-                    />
-                  )}
                 </Field>
               </ListCard>
             ))}
@@ -971,24 +955,15 @@ const AdminEditor = ({ onLogout }: { onLogout: () => void }) => {
                     }}
                   />
                 </Field>
-                <Field label="Image URL (optional)">
-                  <input
-                    className={inputClass}
-                    placeholder="https://… or /uploads/photo.jpg"
+                <Field label="Image (optional)">
+                  <ImageField
                     value={s.image ?? ""}
-                    onChange={(e) => {
+                    onChange={(val) => {
                       const next = [...(draft.customSections ?? [])];
-                      next[i] = { ...s, image: e.target.value };
+                      next[i] = { ...s, image: val };
                       update("customSections", next);
                     }}
                   />
-                  {s.image && (
-                    <img
-                      src={s.image}
-                      alt=""
-                      className="mt-2 h-24 w-auto rounded-sm border border-hairline object-cover"
-                    />
-                  )}
                 </Field>
               </ListCard>
             ))}
@@ -1023,24 +998,15 @@ const AdminEditor = ({ onLogout }: { onLogout: () => void }) => {
                   )
                 }
               >
-                <Field label="Image URL">
-                  <input
-                    className={inputClass}
-                    placeholder="https://… or /uploads/photo.jpg"
+                <Field label="Image">
+                  <ImageField
                     value={g.url}
-                    onChange={(e) => {
+                    onChange={(val) => {
                       const next = [...(draft.gallery ?? [])];
-                      next[i] = { ...g, url: e.target.value };
+                      next[i] = { ...g, url: val };
                       update("gallery", next);
                     }}
                   />
-                  {g.url && (
-                    <img
-                      src={g.url}
-                      alt=""
-                      className="mt-2 h-24 w-auto rounded-sm border border-hairline object-cover"
-                    />
-                  )}
                 </Field>
                 <Field label="Caption (optional)">
                   <input
