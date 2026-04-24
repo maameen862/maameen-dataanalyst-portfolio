@@ -23,6 +23,7 @@ import type {
   SectionVisibility,
 } from "@/lib/portfolio";
 import { toast } from "@/hooks/use-toast";
+import { ImageField } from "@/components/admin/ImageField";
 import {
   ArrowLeft,
   Download,
