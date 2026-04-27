@@ -1,8 +1,13 @@
 import { motion } from "framer-motion";
 import { usePortfolio } from "@/lib/portfolioStore";
+import { useLightbox } from "./Lightbox";
 
 export const About = () => {
   const portfolio = usePortfolio();
+  const { open } = useLightbox();
+  const certImages = portfolio.certifications
+    .filter((c) => c.image)
+    .map((c) => ({ src: c.image as string, alt: c.name, caption: c.name }));
   return (
     <section id="about" className="py-24 md:py-32 border-t border-hairline">
       <div className="container">
