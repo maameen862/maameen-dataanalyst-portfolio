@@ -52,6 +52,8 @@ export type SectionVisibility = {
   posts: boolean;
 };
 
+export type GalleryLayout = "masonry" | "grid" | "stack";
+
 export type Portfolio = {
   hero: {
     name: string;
@@ -71,6 +73,7 @@ export type Portfolio = {
   certifications: Certification[];
   customSections?: CustomSection[];
   gallery?: GalleryImage[];
+  galleryLayout?: GalleryLayout;
   posts?: Post[];
   visibility?: SectionVisibility;
 };
