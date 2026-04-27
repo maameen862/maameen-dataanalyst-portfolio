@@ -121,6 +121,7 @@ const PortfolioSchema = z.object({
   certifications: z.array(CertificationSchema),
   customSections: z.array(CustomSectionSchema).optional(),
   gallery: z.array(GalleryImageSchema).optional(),
+  galleryLayout: z.enum(["masonry", "grid", "stack"]).optional(),
   posts: z.array(PostSchema).optional(),
   visibility: VisibilitySchema.optional(),
 });
