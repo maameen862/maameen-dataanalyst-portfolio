@@ -57,14 +57,22 @@ export const About = () => {
               {portfolio.certifications.map((c, i) => (
                 <div key={c.id} className="bg-card p-4 flex flex-col gap-3">
                   {c.image && (
-                    <div className="aspect-[4/3] overflow-hidden rounded-sm border border-hairline bg-secondary/40">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const idx = certImages.findIndex((im) => im.src === c.image);
+                        open(certImages, idx >= 0 ? idx : 0);
+                      }}
+                      aria-label={`Open ${c.name} certificate preview`}
+                      className="aspect-[4/3] overflow-hidden rounded-sm border border-hairline bg-secondary/40 cursor-zoom-in group"
+                    >
                       <img
                         src={c.image}
                         alt={`${c.name} certificate`}
                         loading="lazy"
-                        className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                    </div>
+                    </button>
                   )}
                   <div>
                     <div className="font-mono text-[10px] text-primary">CERT 0{i + 1}</div>
