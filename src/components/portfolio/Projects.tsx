@@ -2,16 +2,21 @@ import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { usePortfolio } from "@/lib/portfolioStore";
 import { SectionLabel } from "./About";
-import { ArrowUpRight, Calendar } from "lucide-react";
+import { ArrowUpRight, Calendar, Expand } from "lucide-react";
+import { useLightbox } from "./Lightbox";
 
 export const Projects = () => {
   const portfolio = usePortfolio();
+  const { open } = useLightbox();
   const [filter, setFilter] = useState("All");
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(portfolio.projects.map((p) => p.category)))],
     [portfolio.projects]
   );
   const projects = portfolio.projects.filter((p) => filter === "All" || p.category === filter);
+  const projectImages = projects
+    .filter((p) => p.image)
+    .map((p) => ({ src: p.image as string, alt: p.title, caption: p.title }));
 
   return (
     <section id="projects" className="py-24 md:py-32 border-t border-hairline">
