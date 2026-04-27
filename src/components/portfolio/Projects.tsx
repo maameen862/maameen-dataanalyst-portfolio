@@ -2,16 +2,21 @@ import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { usePortfolio } from "@/lib/portfolioStore";
 import { SectionLabel } from "./About";
-import { ArrowUpRight, Calendar } from "lucide-react";
+import { ArrowUpRight, Calendar, Expand } from "lucide-react";
+import { useLightbox } from "./Lightbox";
 
 export const Projects = () => {
   const portfolio = usePortfolio();
+  const { open } = useLightbox();
   const [filter, setFilter] = useState("All");
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(portfolio.projects.map((p) => p.category)))],
     [portfolio.projects]
   );
   const projects = portfolio.projects.filter((p) => filter === "All" || p.category === filter);
+  const projectImages = projects
+    .filter((p) => p.image)
+    .map((p) => ({ src: p.image as string, alt: p.title, caption: p.title }));
 
   return (
     <section id="projects" className="py-24 md:py-32 border-t border-hairline">
@@ -53,7 +58,15 @@ export const Projects = () => {
               }`}
             >
               {p.image && (
-                <div className={`relative overflow-hidden border-b border-hairline ${p.featured ? "aspect-[21/9]" : "aspect-[16/9]"}`}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const idx = projectImages.findIndex((im) => im.src === p.image);
+                    open(projectImages, idx >= 0 ? idx : 0);
+                  }}
+                  aria-label={`Open ${p.title} preview`}
+                  className={`group/img relative block w-full overflow-hidden border-b border-hairline cursor-zoom-in ${p.featured ? "aspect-[21/9]" : "aspect-[16/9]"}`}
+                >
                   <img
                     src={p.image}
                     alt={`${p.title} preview`}
@@ -61,7 +74,10 @@ export const Projects = () => {
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-card via-card/30 to-transparent pointer-events-none" />
-                </div>
+                  <span className="absolute top-3 right-3 inline-flex h-8 w-8 items-center justify-center rounded-sm border border-hairline bg-background/70 backdrop-blur opacity-0 group-hover/img:opacity-100 transition text-foreground">
+                    <Expand className="h-3.5 w-3.5" />
+                  </span>
+                </button>
               )}
               <div className="p-6 md:p-8">
               <div className="flex items-start justify-between gap-4 mb-6">

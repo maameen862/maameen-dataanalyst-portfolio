@@ -34,6 +34,8 @@ import {
   Trash2,
   Save,
   Lock,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 
 const inputClass =
@@ -984,43 +986,100 @@ const AdminEditor = ({ onLogout }: { onLogout: () => void }) => {
         {/* Gallery */}
         <Section index="11" title="Gallery (optional)">
           <p className="text-xs text-muted-foreground -mt-2">
-            Add image URLs — they render as a masonry grid on the site.
+            Upload images, choose a layout, and use the arrow buttons to reorder. Visitors can click any image to zoom and download.
           </p>
+
+          <Field label="Layout">
+            <div className="flex flex-wrap gap-2">
+              {(["masonry", "grid", "stack"] as const).map((opt) => {
+                const current = draft.galleryLayout ?? "masonry";
+                const active = current === opt;
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => update("galleryLayout", opt)}
+                    className={`px-3 py-1.5 rounded-sm font-mono text-[10px] uppercase tracking-widest transition border ${
+                      active
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-hairline text-muted-foreground hover:border-primary hover:text-primary"
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+          </Field>
+
           <div className="space-y-3">
-            {(draft.gallery ?? []).map((g, i) => (
-              <ListCard
-                key={g.id}
-                badge={`Image 0${i + 1}`}
-                onRemove={() =>
-                  update(
-                    "gallery",
-                    (draft.gallery ?? []).filter((x) => x.id !== g.id)
-                  )
-                }
-              >
-                <Field label="Image">
-                  <ImageField
-                    value={g.url}
-                    onChange={(val) => {
-                      const next = [...(draft.gallery ?? [])];
-                      next[i] = { ...g, url: val };
-                      update("gallery", next);
-                    }}
-                  />
-                </Field>
-                <Field label="Caption (optional)">
-                  <input
-                    className={inputClass}
-                    value={g.caption ?? ""}
-                    onChange={(e) => {
-                      const next = [...(draft.gallery ?? [])];
-                      next[i] = { ...g, caption: e.target.value };
-                      update("gallery", next);
-                    }}
-                  />
-                </Field>
-              </ListCard>
-            ))}
+            {(draft.gallery ?? []).map((g, i) => {
+              const list = draft.gallery ?? [];
+              const move = (dir: -1 | 1) => {
+                const j = i + dir;
+                if (j < 0 || j >= list.length) return;
+                const next = [...list];
+                [next[i], next[j]] = [next[j], next[i]];
+                update("gallery", next);
+              };
+              return (
+                <ListCard
+                  key={g.id}
+                  badge={`Image ${String(i + 1).padStart(2, "0")}`}
+                  onRemove={() =>
+                    update(
+                      "gallery",
+                      list.filter((x) => x.id !== g.id)
+                    )
+                  }
+                >
+                  <div className="flex items-center gap-2 -mt-1">
+                    <button
+                      type="button"
+                      onClick={() => move(-1)}
+                      disabled={i === 0}
+                      aria-label="Move up"
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-sm border border-hairline text-muted-foreground hover:text-primary hover:border-primary transition disabled:opacity-30 disabled:hover:text-muted-foreground disabled:hover:border-hairline"
+                    >
+                      <ArrowUp className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => move(1)}
+                      disabled={i === list.length - 1}
+                      aria-label="Move down"
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-sm border border-hairline text-muted-foreground hover:text-primary hover:border-primary transition disabled:opacity-30 disabled:hover:text-muted-foreground disabled:hover:border-hairline"
+                    >
+                      <ArrowDown className="h-3.5 w-3.5" />
+                    </button>
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                      Reorder
+                    </span>
+                  </div>
+                  <Field label="Image">
+                    <ImageField
+                      value={g.url}
+                      onChange={(val) => {
+                        const next = [...list];
+                        next[i] = { ...g, url: val };
+                        update("gallery", next);
+                      }}
+                    />
+                  </Field>
+                  <Field label="Caption (optional)">
+                    <input
+                      className={inputClass}
+                      value={g.caption ?? ""}
+                      onChange={(e) => {
+                        const next = [...list];
+                        next[i] = { ...g, caption: e.target.value };
+                        update("gallery", next);
+                      }}
+                    />
+                  </Field>
+                </ListCard>
+              );
+            })}
             <AddBtn
               label="Add gallery image"
               onClick={() => {
