@@ -34,6 +34,8 @@ import {
   Trash2,
   Save,
   Lock,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 
 const inputClass =
