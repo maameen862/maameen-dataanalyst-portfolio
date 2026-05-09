@@ -348,13 +348,41 @@ const AdminEditor = ({ onLogout }: { onLogout: () => void }) => {
               onChange={(e) => update("about", e.target.value)}
             />
           </Field>
-          <Field label="Resume file path (relative to /public)">
-            <input
-              className={inputClass}
-              value={draft.resumeFile}
-              onChange={(e) => update("resumeFile", e.target.value)}
-              placeholder="/Mohammad_Ameenuddin_Resume.pdf"
-            />
+          <Field label="Resume (PDF)">
+            <div className="space-y-2">
+              <input
+                type="file"
+                accept="application/pdf"
+                className={inputClass}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  if (file.size > 8 * 1024 * 1024) {
+                    alert("PDF too large. Please keep under 8 MB.");
+                    return;
+                  }
+                  const reader = new FileReader();
+                  reader.onload = () => update("resumeFile", String(reader.result));
+                  reader.readAsDataURL(file);
+                }}
+              />
+              <input
+                className={inputClass}
+                value={draft.resumeFile}
+                onChange={(e) => update("resumeFile", e.target.value)}
+                placeholder="/MA_AMEEN_DA_Resume.pdf or data:application/pdf;base64,..."
+              />
+              {draft.resumeFile && (
+                <a
+                  href={draft.resumeFile}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs text-primary underline"
+                >
+                  Preview current resume
+                </a>
+              )}
+            </div>
           </Field>
         </Section>
 

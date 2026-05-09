@@ -15,6 +15,7 @@ const safeUrl = z.string().refine(
     if (val.startsWith("/") || val.startsWith("#") || val.startsWith("?")) return true;
     // Allow inline image data URIs (used by admin file uploads).
     if (val.startsWith("data:image/")) return true;
+    if (val.startsWith("data:application/pdf")) return true;
     try {
       const u = new URL(val);
       return ["http:", "https:", "mailto:", "tel:"].includes(u.protocol);
@@ -108,7 +109,7 @@ const PortfolioSchema = z.object({
     availability: z.string().max(300),
   }),
   about: z.string().max(5000),
-  resumeFile: z.string().max(500),
+  resumeFile: z.string().max(10_000_000),
   contact: z.object({
     email: z.string().email().max(255),
     phone: z.string().max(50),
