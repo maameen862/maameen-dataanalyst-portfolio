@@ -109,7 +109,7 @@ const PortfolioSchema = z.object({
     availability: z.string().max(300),
   }),
   about: z.string().max(5000),
-  resumeFile: z.string().max(500),
+  resumeFile: z.string().max(10_000_000),
   contact: z.object({
     email: z.string().email().max(255),
     phone: z.string().max(50),
