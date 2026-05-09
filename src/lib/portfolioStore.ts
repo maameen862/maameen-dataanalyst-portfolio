@@ -15,6 +15,7 @@ const safeUrl = z.string().refine(
     if (val.startsWith("/") || val.startsWith("#") || val.startsWith("?")) return true;
     // Allow inline image data URIs (used by admin file uploads).
     if (val.startsWith("data:image/")) return true;
+    if (val.startsWith("data:application/pdf")) return true;
     try {
       const u = new URL(val);
       return ["http:", "https:", "mailto:", "tel:"].includes(u.protocol);
