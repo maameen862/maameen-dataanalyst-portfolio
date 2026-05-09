@@ -105,7 +105,9 @@ export const Nav = () => {
 
         <a
           href={portfolio.resumeFile}
-          download
+          download="resume.pdf"
+          target="_blank"
+          rel="noreferrer"
           className="group inline-flex items-center gap-2 rounded-sm border border-primary/40 bg-primary/10 px-3 py-2 text-xs font-mono uppercase tracking-wider text-primary transition hover:bg-primary hover:text-primary-foreground"
         >
           <span>Resume</span>
