@@ -66,6 +66,7 @@ const ProjectSchema = z.object({
   category: z.string().max(100),
   featured: z.boolean(),
   image: safeUrl.max(3_000_000).optional().or(z.literal("")),
+  images: z.array(safeUrl.max(3_000_000)).optional(),
 });
 
 const CertificationSchema = z.object({

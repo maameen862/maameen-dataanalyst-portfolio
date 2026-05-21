@@ -23,6 +23,7 @@ export type Project = {
   category: string;
   featured: boolean;
   image?: string;
+  images?: string[];
 };
 export type Certification = { id: string; name: string; image?: string };
 
