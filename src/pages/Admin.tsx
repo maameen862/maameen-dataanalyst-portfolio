@@ -672,7 +672,15 @@ const AdminEditor = ({ onLogout }: { onLogout: () => void }) => {
         {/* Projects */}
         <Section index="07" title="Projects">
           <div className="space-y-3">
-            {draft.projects.map((p, i) => (
+            {draft.projects.map((p, i) => {
+              const move = (dir: -1 | 1) => {
+                const j = i + dir;
+                if (j < 0 || j >= draft.projects.length) return;
+                const next = [...draft.projects];
+                [next[i], next[j]] = [next[j], next[i]];
+                update("projects", next);
+              };
+              return (
               <ListCard
                 key={p.id}
                 badge={`Project 0${i + 1}${p.featured ? " · ★" : ""}`}
@@ -683,6 +691,29 @@ const AdminEditor = ({ onLogout }: { onLogout: () => void }) => {
                   )
                 }
               >
+                <div className="flex items-center gap-2 -mt-1">
+                  <button
+                    type="button"
+                    onClick={() => move(-1)}
+                    disabled={i === 0}
+                    aria-label="Move up"
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-sm border border-hairline text-muted-foreground hover:text-primary hover:border-primary transition disabled:opacity-30 disabled:hover:text-muted-foreground disabled:hover:border-hairline"
+                  >
+                    <ArrowUp className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => move(1)}
+                    disabled={i === draft.projects.length - 1}
+                    aria-label="Move down"
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-sm border border-hairline text-muted-foreground hover:text-primary hover:border-primary transition disabled:opacity-30 disabled:hover:text-muted-foreground disabled:hover:border-hairline"
+                  >
+                    <ArrowDown className="h-3.5 w-3.5" />
+                  </button>
+                  <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                    Reorder
+                  </span>
+                </div>
                 <div className="grid md:grid-cols-2 gap-3">
                   <Field label="Title">
                     <input
@@ -887,7 +918,8 @@ const AdminEditor = ({ onLogout }: { onLogout: () => void }) => {
                   </div>
                 </Field>
               </ListCard>
-            ))}
+            );
+          })}
             <AddBtn
               label="Add project"
               onClick={() => {
