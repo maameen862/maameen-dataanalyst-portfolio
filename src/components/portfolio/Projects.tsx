@@ -14,9 +14,10 @@ export const Projects = () => {
     [portfolio.projects]
   );
   const projects = portfolio.projects.filter((p) => filter === "All" || p.category === filter);
-  const projectImages = projects
-    .filter((p) => p.image)
-    .map((p) => ({ src: p.image as string, alt: p.title, caption: p.title }));
+  const getProjectImages = (p: typeof projects[number]) => {
+    const all = [p.image, ...(p.images ?? [])].filter((x): x is string => !!x);
+    return Array.from(new Set(all));
+  };
 
   return (
     <section id="projects" className="py-24 md:py-32 border-t border-hairline">
