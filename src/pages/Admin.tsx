@@ -799,7 +799,7 @@ const AdminEditor = ({ onLogout }: { onLogout: () => void }) => {
                     }}
                   />
                 </Field>
-                <Field label="Image (optional — shown at top of card)">
+                <Field label="Cover image (optional — shown at top of card)">
                   <ImageField
                     value={p.image ?? ""}
                     onChange={(val) => {
@@ -808,6 +808,83 @@ const AdminEditor = ({ onLogout }: { onLogout: () => void }) => {
                       update("projects", next);
                     }}
                   />
+                </Field>
+                <Field label="Additional images (click cover on site to browse all)">
+                  <div className="space-y-3">
+                    {(p.images ?? []).map((img, k) => (
+                      <div key={k} className="border border-hairline rounded-sm p-3 bg-background/40 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                            Image {String(k + 2).padStart(2, "0")}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              disabled={k === 0}
+                              onClick={() => {
+                                const arr = [...(p.images ?? [])];
+                                [arr[k - 1], arr[k]] = [arr[k], arr[k - 1]];
+                                const next = [...draft.projects];
+                                next[i] = { ...p, images: arr };
+                                update("projects", next);
+                              }}
+                              className="text-muted-foreground hover:text-primary disabled:opacity-30"
+                              aria-label="Move up"
+                            >
+                              <ArrowUp className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={k === (p.images?.length ?? 0) - 1}
+                              onClick={() => {
+                                const arr = [...(p.images ?? [])];
+                                [arr[k], arr[k + 1]] = [arr[k + 1], arr[k]];
+                                const next = [...draft.projects];
+                                next[i] = { ...p, images: arr };
+                                update("projects", next);
+                              }}
+                              className="text-muted-foreground hover:text-primary disabled:opacity-30"
+                              aria-label="Move down"
+                            >
+                              <ArrowDown className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const arr = (p.images ?? []).filter((_, j) => j !== k);
+                                const next = [...draft.projects];
+                                next[i] = { ...p, images: arr };
+                                update("projects", next);
+                              }}
+                              className="text-muted-foreground hover:text-destructive"
+                              aria-label="Remove"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                        <ImageField
+                          value={img}
+                          onChange={(val) => {
+                            const arr = [...(p.images ?? [])];
+                            arr[k] = val;
+                            const next = [...draft.projects];
+                            next[i] = { ...p, images: arr };
+                            update("projects", next);
+                          }}
+                        />
+                      </div>
+                    ))}
+                    <AddBtn
+                      label="Add image"
+                      onClick={() => {
+                        const arr = [...(p.images ?? []), ""];
+                        const next = [...draft.projects];
+                        next[i] = { ...p, images: arr };
+                        update("projects", next);
+                      }}
+                    />
+                  </div>
                 </Field>
               </ListCard>
             ))}
