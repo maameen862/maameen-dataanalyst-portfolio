@@ -918,7 +918,8 @@ const AdminEditor = ({ onLogout }: { onLogout: () => void }) => {
                   </div>
                 </Field>
               </ListCard>
-            ))}
+            );
+          })}
             <AddBtn
               label="Add project"
               onClick={() => {
