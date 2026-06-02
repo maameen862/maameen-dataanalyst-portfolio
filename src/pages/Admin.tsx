@@ -199,10 +199,18 @@ const AdminEditor = ({ onLogout }: { onLogout: () => void }) => {
     setDirty(true);
   };
 
-  const save = () => {
-    savePortfolio(draft);
-    setDirty(false);
-    toast({ title: "Saved", description: "Portfolio updated. Changes are live." });
+  const save = async () => {
+    try {
+      await savePortfolio(draft);
+      setDirty(false);
+      toast({ title: "Saved", description: "Portfolio updated. Changes are live." });
+    } catch (err) {
+      toast({
+        title: "Save failed",
+        description: err instanceof Error ? err.message : "Could not save portfolio.",
+        variant: "destructive",
+      });
+    }
   };
 
   const onImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
