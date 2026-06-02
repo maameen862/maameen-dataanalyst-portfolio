@@ -128,28 +128,98 @@ const PortfolioSchema = z.object({
   visibility: VisibilitySchema.optional(),
 });
 
-const readFromStorage = (): Portfolio => {
+const DB_NAME = "portfolio-db";
+const STORE_NAME = "kv";
+const DB_KEY = "data";
+
+const openDB = (): Promise<IDBDatabase> =>
+  new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = () => {
+      req.result.createObjectStore(STORE_NAME);
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+
+const idbGet = async (): Promise<unknown> => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readonly");
+    const req = tx.objectStore(STORE_NAME).get(DB_KEY);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+};
+
+const idbSet = async (value: unknown): Promise<void> => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    tx.objectStore(STORE_NAME).put(value, DB_KEY);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+};
+
+const idbDel = async (): Promise<void> => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    tx.objectStore(STORE_NAME).delete(DB_KEY);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+};
+
+const parseStored = (parsed: unknown): Portfolio | null => {
+  const result = PortfolioSchema.safeParse(parsed);
+  return result.success ? (result.data as Portfolio) : null;
+};
+
+const readFromLocalStorageSync = (): Portfolio => {
   if (typeof window === "undefined") return seed as Portfolio;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return seed as Portfolio;
-    const parsed = JSON.parse(raw);
-    // Validate stored data too — defends against tampered localStorage
-    const result = PortfolioSchema.safeParse(parsed);
-    if (!result.success) return seed as Portfolio;
-    return result.data as Portfolio;
+    return parseStored(JSON.parse(raw)) ?? (seed as Portfolio);
   } catch {
     return seed as Portfolio;
   }
 };
 
-let cache: Portfolio = readFromStorage();
+let cache: Portfolio = readFromLocalStorageSync();
+
+// Async hydrate from IndexedDB (primary store) and migrate legacy localStorage.
+if (typeof window !== "undefined") {
+  idbGet()
+    .then((val) => {
+      if (val) {
+        const parsed = parseStored(val);
+        if (parsed) {
+          cache = parsed;
+          window.dispatchEvent(new Event(EVENT));
+        }
+      } else {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = parseStored(JSON.parse(raw));
+            if (parsed) {
+              idbSet(parsed).catch(() => {});
+              localStorage.removeItem(STORAGE_KEY);
+            }
+          }
+        } catch {
+          /* ignore */
+        }
+      }
+    })
+    .catch(() => {});
+}
 
 const subscribe = (cb: () => void) => {
-  const handler = () => {
-    cache = readFromStorage();
-    cb();
-  };
+  const handler = () => cb();
   window.addEventListener(EVENT, handler);
   window.addEventListener("storage", handler);
   return () => {
@@ -164,14 +234,24 @@ const getServerSnapshot = () => seed as Portfolio;
 export const usePortfolio = (): Portfolio =>
   useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-export const savePortfolio = (next: Portfolio) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+export const savePortfolio = async (next: Portfolio) => {
   cache = next;
   window.dispatchEvent(new Event(EVENT));
+  try {
+    await idbSet(next);
+  } catch (err) {
+    console.error("Failed to persist portfolio to IndexedDB", err);
+    throw err;
+  }
 };
 
 export const resetPortfolio = () => {
-  localStorage.removeItem(STORAGE_KEY);
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    /* ignore */
+  }
+  idbDel().catch(() => {});
   cache = seed as Portfolio;
   window.dispatchEvent(new Event(EVENT));
 };
