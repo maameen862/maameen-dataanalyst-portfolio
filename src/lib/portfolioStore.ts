@@ -280,7 +280,7 @@ export const importPortfolio = async (file: File) => {
     const path = first?.path.join(".") || "(root)";
     throw new Error(`Invalid portfolio data at "${path}": ${first?.message ?? "schema mismatch"}`);
   }
-  savePortfolio(result.data as Portfolio);
+  await savePortfolio(result.data as Portfolio);
 };
 
 export const usePortfolioEffect = (cb: (p: Portfolio) => void) => {
