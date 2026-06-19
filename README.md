@@ -1,3 +1,3 @@
-# Welcome to your Lovable project
+# Mohammad Ameenuddin Portfolio
 
 TODO: Document your project here
