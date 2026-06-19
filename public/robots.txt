@@ -15,3 +15,5 @@ Allow: /
 User-agent: *
 Allow: /
 Disallow: /admin
+
+Sitemap: https://maameen-dataanalyst-portfolio.lovable.app/sitemap.xml
