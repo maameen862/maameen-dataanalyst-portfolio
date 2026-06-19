@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
 
-  plugins: [react()].filter(Boolean),
+  plugins: [react()],
 
   resolve: {
     alias: {
